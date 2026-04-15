@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#1a1208"/>
+<meta name="description" content="Logos Light — Daily Bible devotions, Hebrew & Greek word study, worship music"/>
+<title>Logos Light — Bible Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --parchment:#f9f5ed;--ink:#2c2416;--ink-mid:#5c4f3a;--ink-light:#8c7f6a;
+  --gold:#b8832a;--gold-light:#e8c97a;--gold-pale:#f7edd5;--gold-deep:#7a5210;
+  --border:rgba(184,131,42,0.22);--border-strong:rgba(184,131,42,0.45);
+  --red-acc:#8b2e2e;--night:#1a1208;
+  --hl-yellow:rgba(255,220,80,0.42);--hl-blue:rgba(100,160,220,0.32);
+  --hl-green:rgba(80,180,120,0.32);--hl-pink:rgba(220,100,120,0.32);
+  --fb:#1877F2;--wa:#25D366;--ig:#E1306C;
+}
+html,body{height:100%;overflow:hidden;background:var(--night)}
+
+/* ══ SPLASH ══════════════════════════════════════════════ */
+#splash{position:fixed;inset:0;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.9s ease}
+#splash.out{opacity:0;pointer-events:none}
+.splash-cross{width:80px;height:80px;position:relative;margin-bottom:32px;animation:pulse 2.4s ease-in-out infinite}
+.splash-cross::before,.splash-cross::after{content:'';position:absolute;background:var(--gold);border-radius:6px}
+.splash-cross::before{width:16px;height:80px;left:32px;top:0}
+.splash-cross::after{width:80px;height:16px;left:0;top:26px}
+.splash-halo{position:absolute;inset:0;border-radius:50%;border:2px solid var(--gold-light);opacity:0;animation:halo 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.75;transform:scale(.97)}50%{opacity:1;transform:scale(1)}}
+@keyframes halo{0%{transform:scale(.7);opacity:0}50%{transform:scale(1.6);opacity:.3}100%{transform:scale(2.2);opacity:0}}
+.splash-title{font-family:'Playfair Display',serif;font-size:42px;font-weight:700;color:#f5edd8;letter-spacing:4px;margin-bottom:6px;text-align:center}
+.splash-sub{font-family:'Source Sans 3',sans-serif;font-size:13px;color:rgba(232,201,122,.7);letter-spacing:3px;text-transform:uppercase;margin-bottom:50px}
+.splash-verse{font-family:'Crimson Pro',serif;font-style:italic;font-size:17px;color:rgba(245,237,216,.55);max-width:300px;text-align:center;line-height:1.85;margin-bottom:6px}
+.splash-ref{font-family:'Source Sans 3',sans-serif;font-size:12px;color:rgba(232,201,122,.45);letter-spacing:1px}
+.splash-bar{width:180px;height:2px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:50px;overflow:hidden}
+.splash-fill{height:100%;background:var(--gold-light);animation:load 2.5s ease-in-out forwards}
+@keyframes load{from{width:0}to{width:100%}}
+.splash-btn{display:none;margin-top:28px;padding:12px 38px;background:transparent;border:1px solid var(--gold-light);color:var(--gold-light);border-radius:5px;font-size:15px;cursor:pointer;font-family:'Source Sans 3',sans-serif;letter-spacing:1px;transition:all .2s}
+.splash-btn:hover{background:var(--gold);color:var(--night);border-color:var(--gold)}
+
+/* ══ APP ══════════════════════════════════════════════════ */
+#app{font-family:'Source Sans 3',sans-serif;background:var(--parchment);color:var(--ink);height:100vh;display:flex;flex-direction:column;opacity:0;transition:opacity .6s}
+#app.show{opacity:1}
+
+/* ══ NAV ══════════════════════════════════════════════════ */
+.nav{display:flex;align-items:center;background:var(--night);flex-shrink:0;border-bottom:1px solid var(--border-strong)}
+.nav-brand{padding:0 14px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.brand-name{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold-light);font-weight:700;letter-spacing:1px;white-space:nowrap}
+.ntab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;cursor:pointer;border-bottom:3px solid transparent;transition:all .18s;gap:3px}
+.ntab.on{border-bottom-color:var(--gold);background:rgba(184,131,42,.08)}
+.ntab svg{width:18px;height:18px;opacity:.5;transition:opacity .18s}
+.ntab.on svg{opacity:1}
+.ntab span{font-size:10px;color:rgba(245,237,216,.5);letter-spacing:.5px;transition:color .18s}
+.ntab.on span{color:var(--gold-light)}
+
+/* ══ VIEWS ════════════════════════════════════════════════ */
+.view{display:none;flex:1;overflow:hidden;flex-direction:column;min-height:0}
+.view.on{display:flex}
+
+/* ══ SOCIAL SHARE SYSTEM ═══════════════════════════════════ */
+.share-bar{display:flex;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap}
+.share-lbl{font-size:11px;color:var(--ink-light);font-weight:500;letter-spacing:.5px;margin-right:2px}
+.sbtn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'Source Sans 3',sans-serif;transition:opacity .15s;text-decoration:none;flex-shrink:0}
+.sbtn:hover{opacity:.85}
+.sbtn.fb{background:var(--fb);color:white}
+.sbtn.wa{background:var(--wa);color:white}
+.sbtn.ig{background:var(--ig);color:white}
+.sbtn.cp{background:var(--gold);color:white}
+.sbtn svg{width:13px;height:13px;fill:white;flex-shrink:0}
+
+/* Share modal */
+.share-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8000;display:none;align-items:flex-end;justify-content:center}
+.share-modal-bg.open{display:flex}
+.share-modal{background:var(--parchment);border-radius:16px 16px 0 0;padding:0 0 28px;width:100%;max-width:480px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sm-handle{width:36px;height:4px;background:rgba(0,0,0,.15);border-radius:2px;margin:12px auto 0}
+.sm-header{padding:16px 20px 12px;border-bottom:1px solid var(--border)}
+.sm-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--ink);margin-bottom:4px}
+.sm-preview{font-family:'Crimson Pro',serif;font-style:italic;font-size:14px;color:var(--ink-mid);line-height:1.6}
+.sm-ref{font-size:11px;color:var(--gold);margin-top:4px;font-weight:600}
+.sm-options{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sm-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .15s;text-decoration:none;background:white}
+.sm-opt:hover{border-color:var(--gold);background:var(--gold-pale)}
+.sm-opt-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sm-opt-icon.fb{background:var(--fb)}.sm-opt-icon.wa{background:var(--wa)}.sm-opt-icon.ig{background:var(--ig)}.sm-opt-icon.cp{background:var(--gold)}
+.sm-opt-icon svg{width:20px;height:20px;fill:white}
+.sm-opt-label{font-size:12px;font-weight:600;color:var(--ink)}
+.sm-opt-sub{font-size:11px;color:var(--ink-light);text-align:center}
+.sm-cancel{margin:0 20px;padding:12px;background:transparent;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--ink-light);cursor:pointer;width:calc(100% - 40px);font-family:'Source Sans 3',sans-serif;transition:background .15s}
+.sm-cancel:hover{background:rgba(0,0,0,.04)}
+.sm-copied{text-align:center;font-size:13px;color:var(--gold);font-weight:600;padding:8px 0 0;display:none}
+
+/* ══ DAILY VIEW ══════════════════════════════════════════ */
+.daily-scroll{flex:1;overflow-y:auto;padding-bottom:24px}
+.time-hero{padding:26px 18px 20px;position:relative}
+.time-hero.morning{background:linear-gradient(135deg,#2a1e0a 0%,#4a3210 100%)}
+.time-hero.afternoon{background:linear-gradient(135deg,#1a2a1a 0%,#2a4020 100%)}
+.time-hero.evening{background:linear-gradient(135deg,#0a0a1e 0%,#1a1030 100%)}
+.time-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-light);opacity:.7;margin-bottom:7px}
+.time-greeting{font-family:'Playfair Display',serif;font-size:25px;color:#f5edd8;font-weight:700;margin-bottom:3px}
+.time-date{font-size:12px;color:rgba(245,237,216,.5);margin-bottom:18px}
+.time-vcard{background:rgba(255,255,255,.07);border:1px solid rgba(232,201,122,.2);border-radius:10px;padding:16px}
+.tvtext{font-family:'Crimson Pro',serif;font-size:19px;font-style:italic;color:#f5edd8;line-height:1.8;margin-bottom:8px}
+.tvref{font-size:12px;color:var(--gold-light);letter-spacing:1px;margin-bottom:6px}
+.tvtheme{font-size:11px;color:rgba(245,237,216,.45)}
+.hero-share{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+.hsbtn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#f5edd8;font-size:12px;font-weight:500;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:background .15s}
+.hsbtn:hover{background:rgba(255,255,255,.18)}
+.hsbtn svg{width:13px;height:13px;fill:#f5edd8;flex-shrink:0}
+.hsbtn.fb-h:hover{background:var(--fb);border-color:var(--fb)}
+.hsbtn.wa-h:hover{background:var(--wa);border-color:var(--wa)}
+.hsbtn.ig-h:hover{background:var(--ig);border-color:var(--ig)}
+
+.daily-inner{padding:0 16px}
+.dsec{margin-bottom:20px}
+.dsh{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.ts-wrap{display:flex;gap:8px;padding:14px 16px 6px;overflow-x:auto;flex-shrink:0}
+.tsbtn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border-strong);background:transparent;color:var(--ink-light);white-space:nowrap;font-family:'Source Sans 3',sans-serif;transition:all .15s}
+.tsbtn.on{background:var(--gold);border-color:var(--gold);color:white}
+
+/* Reading plan */
+.rp-card{background:white;border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .15s}
+.rp-card:hover{border-color:var(--gold)}
+.rp-badge{display:inline-block;background:var(--gold-pale);color:var(--gold-deep);font-size:10px;font-weight:600;letter-spacing:1px;padding:3px 8px;border-radius:10px;margin-bottom:8px;text-transform:uppercase}
+.rp-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--ink);margin-bottom:3px}
+.rp-ref{font-size:13px;color:var(--gold);margin-bottom:7px}
+.rp-preview{font-family:'Crimson Pro',serif;font-size:15px;color:var(--ink-mid);line-height:1.65;font-style:italic}
+.rp-open{margin-top:10px;font-size:13px;color:var(--gold);font-weight:500}
+
+/* Songs */
+.songs-list{display:flex;flex-direction:column;gap:10px}
+.scard{background:white;border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.scard:hover{border-color:var(--gold)}
+.scard-inner{display:flex;align-items:center;gap:12px;padding:13px}
+.sthumb{width:50px;height:50px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.sthumb.m{background:#f7edd5}.sthumb.a{background:#e8f5e8}.sthumb.e{background:#1a1630}
+.sinfo{flex:1;min-width:0}
+.stitle{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sartist{font-size:12px;color:var(--ink-light);margin-bottom:4px}
+.stags{display:flex;gap:4px;flex-wrap:wrap}
+.stag{font-size:10px;padding:2px 7px;border-radius:8px;background:var(--gold-pale);color:var(--gold-deep)}
+.yt-btn{display:flex;align-items:center;gap:5px;background:#ff0000;color:white;border:none;border-radius:7px;padding:8px 11px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;font-family:'Source Sans 3',sans-serif;flex-shrink:0;margin-right:2px;transition:background .15s}
+.yt-btn:hover{background:#cc0000}
+.yt-btn svg{width:14px;height:14px;fill:white}
+.song-verse{background:var(--gold-pale);border-left:3px solid var(--gold);padding:9px 14px;font-family:'Crimson Pro',serif;font-style:italic;font-size:14px;color:var(--ink-mid);line-height:1.6}
+
+/* Devotional */
+.devo-card{background:var(--night);border-radius:10px;padding:18px;color:#f5edd8;position:relative}
+.devo-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold-light);margin-bottom:10px}
+.devo-body{font-size:13.5px;line-height:1.82;color:rgba(245,237,216,.82);margin-bottom:12px}
+.devo-reflection{border-left:3px solid var(--gold);padding-left:12px;font-style:italic;font-size:13px;color:rgba(245,237,216,.6);line-height:1.7}
+.devo-share{display:flex;gap:7px;margin-top:16px;flex-wrap:wrap}
+.devo-sbtn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#f5edd8;font-size:12px;font-weight:500;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:background .15s}
+.devo-sbtn:hover{background:rgba(255,255,255,.18)}
+.devo-sbtn svg{width:13px;height:13px;fill:#f5edd8}
+
+/* ══ STUDY VIEW ════════════════════════════════════════════ */
+.study-top{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--night);flex-shrink:0;flex-wrap:wrap}
+.study-top select{background:rgba(255,255,255,.1);color:#f5edd8;border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:5px 8px;font-size:13px;font-family:'Source Sans 3',sans-serif;cursor:pointer}
+.study-top select option{background:#2c2416;color:#f5edd8}
+.sp{flex:1}
+.tbtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#f5edd8;border-radius:4px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:'Source Sans 3',sans-serif;transition:background .15s}
+.tbtn:hover{background:rgba(255,255,255,.18)}
+.tbtn.on{background:var(--gold);border-color:var(--gold);color:var(--night);font-weight:600}
+.hl-bar{display:flex;align-items:center;gap:7px;padding:7px 14px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.hl-label{font-size:11px;color:var(--ink-light);font-weight:500}
+.hl-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .1s}
+.hl-dot:hover{transform:scale(1.2)}
+.hl-dot.on{border-color:var(--ink)}
+.hdy{background:#f5c842}.hdb{background:#5ea0dc}.hdg{background:#4ab87a}.hdp{background:#e06080}
+.hdclr{background:white;border-color:var(--border-strong)!important;font-size:10px;display:flex;align-items:center;justify-content:center;color:var(--ink-light);width:22px;height:22px}
+.mchip{font-size:11px;padding:3px 8px;border-radius:10px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--ink-light);font-family:'Source Sans 3',sans-serif;transition:all .12s}
+.mchip.on{background:var(--gold);border-color:var(--gold);color:white;font-weight:500}
+.study-body{display:flex;flex:1;overflow:hidden;min-height:0}
+.reading-col{flex:1;overflow-y:auto;padding:18px 16px;min-width:0}
+.book-hdr{text-align:center;margin-bottom:18px}
+.book-title{font-family:'Playfair Display',serif;font-size:25px;color:var(--ink)}
+.book-sub{font-size:12px;color:var(--ink-light);margin-top:4px}
+.verse-block{margin-bottom:3px;line-height:1.9;font-family:'Crimson Pro',serif;font-size:17.5px;color:var(--ink);padding:3px 6px;border-radius:3px;cursor:text;transition:background .1s}
+.verse-block:hover{background:rgba(184,131,42,.04)}
+.verse-block.noted{border-left:2px solid var(--gold);padding-left:10px}
+.vnum{font-size:11px;font-weight:700;color:var(--gold);vertical-align:super;margin-right:4px;font-family:'Source Sans 3',sans-serif;cursor:pointer}
+.word{cursor:pointer;border-radius:2px;padding:0 1px;transition:background .1s}
+.word:hover{background:rgba(184,131,42,.18)}
+.word.hl-y{background:var(--hl-yellow)}.word.hl-b{background:var(--hl-blue)}.word.hl-g{background:var(--hl-green)}.word.hl-p{background:var(--hl-pink)}
+.red-word{color:var(--red-acc)}
+/* Verse share strip */
+.vshare-strip{display:flex;gap:5px;align-items:center;padding:4px 6px 8px;flex-wrap:wrap}
+.vshare-lbl{font-size:10px;color:var(--ink-light);letter-spacing:.5px}
+.vsbtn{display:inline-flex;align-items:center;gap:3px;padding:4px 9px;border-radius:12px;border:none;cursor:pointer;font-size:11px;font-weight:600;font-family:'Source Sans 3',sans-serif;transition:opacity .15s}
+.vsbtn.fb{background:var(--fb);color:white}.vsbtn.wa{background:var(--wa);color:white}.vsbtn.ig{background:var(--ig);color:white}.vsbtn.cp{background:var(--gold);color:white}
+.vsbtn svg{width:11px;height:11px;fill:white}
+
+.side-panel{width:295px;border-left:1px solid var(--border-strong);background:rgba(249,245,237,.97);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.ptabs{display:flex;border-bottom:1px solid var(--border);background:rgba(0,0,0,.03)}
+.ptab{flex:1;padding:9px 3px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;color:var(--ink-light);border-bottom:2px solid transparent;transition:all .15s;font-family:'Source Sans 3',sans-serif}
+.ptab.on{color:var(--gold);border-bottom-color:var(--gold);background:rgba(184,131,42,.06)}
+.pbody{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:4px}
+.psec{display:none;flex-direction:column;gap:8px}
+.psec.show{display:flex}
+.hint{font-size:13px;color:var(--ink-light);text-align:center;padding:20px 6px;font-style:italic;line-height:1.7}
+.wcard{border:1px solid var(--border-strong);border-radius:8px;background:white;padding:14px}
+.woriginal{font-size:28px;font-family:'Playfair Display',serif;color:var(--ink);text-align:center;margin-bottom:3px}
+.wtranslit{font-size:13px;color:var(--ink-light);text-align:center;font-style:italic;margin-bottom:8px}
+.wlabel{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.wdef{font-size:13.5px;color:var(--ink);line-height:1.65;margin-bottom:8px}
+.wusage{font-size:13px;color:var(--ink-mid);line-height:1.6;border-top:1px solid var(--border);padding-top:8px;font-style:italic}
+.slabel{font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--ink-light);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--border);flex-shrink:0}
+.abtn{width:100%;background:transparent;border:1px solid var(--border-strong);border-radius:4px;padding:8px;font-size:13px;cursor:pointer;color:var(--ink);font-family:'Source Sans 3',sans-serif;text-align:left;transition:background .1s;margin-bottom:6px}
+.abtn:hover{background:rgba(184,131,42,.07)}
+.ai-resp{font-size:13.5px;line-height:1.75;color:var(--ink)}
+.aload{display:flex;gap:5px;align-items:center;padding:14px 0}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:bop 1s infinite}
+.dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
+@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.ask-row{display:flex;gap:6px;padding:10px;border-top:1px solid var(--border);flex-shrink:0}
+.ask-row input{flex:1;border:1px solid var(--border-strong);border-radius:4px;padding:7px 10px;font-size:13px;font-family:'Source Sans 3',sans-serif;background:white;color:var(--ink);outline:none}
+.ask-row input:focus{border-color:var(--gold)}
+.ask-row button{background:var(--gold);border:none;color:white;border-radius:4px;padding:7px 12px;font-size:13px;cursor:pointer}
+.ctx-scroll{flex:1;overflow-y:auto}
+.note-area{border:1px solid var(--border-strong);border-radius:6px;padding:10px;background:white;flex-shrink:0}
+.note-ref{font-size:11px;color:var(--gold);font-weight:600;margin-bottom:5px}
+.note-area textarea{width:100%;border:none;outline:none;resize:none;font-size:13px;color:var(--ink);font-family:'Source Sans 3',sans-serif;line-height:1.6;background:transparent;min-height:70px}
+.save-btn{width:100%;margin-top:7px;background:var(--gold);border:none;color:white;border-radius:4px;padding:7px;font-size:13px;cursor:pointer;font-family:'Source Sans 3',sans-serif}
+.note-item{border:1px solid var(--border);border-radius:6px;padding:10px;background:white}
+.ni-hdr{font-size:11px;color:var(--gold);font-weight:600;margin-bottom:5px;display:flex;justify-content:space-between}
+.ni-del{cursor:pointer;color:var(--ink-light)}.ni-del:hover{color:var(--red-acc)}
+.ni-txt{font-size:13px;color:var(--ink);line-height:1.5}
+.empty-n{font-size:13px;color:var(--ink-light);text-align:center;padding:20px 0;font-style:italic}
+
+/* ══ WORSHIP VIEW ═════════════════════════════════════════ */
+.worship-scroll{flex:1;overflow-y:auto;padding-bottom:24px}
+.worship-hero{background:var(--night);padding:22px 20px;text-align:center}
+.wh-title{font-family:'Playfair Display',serif;font-size:23px;color:#f5edd8;margin-bottom:5px}
+.wh-sub{font-size:13px;color:rgba(232,201,122,.6);letter-spacing:.5px}
+.w-sections{padding:16px}
+.ws-sec{margin-bottom:24px}
+.ws-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ws-lbl{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ink-light)}
+
+/* ══ CONTEXT MENU ════════════════════════════════════════ */
+.ctx{position:fixed;background:var(--night);border-radius:6px;padding:6px 0;z-index:5000;box-shadow:0 4px 20px rgba(0,0,0,.4);display:none}
+.ctx-item{padding:8px 16px;font-size:13px;color:#f5edd8;cursor:pointer;font-family:'Source Sans 3',sans-serif;white-space:nowrap}
+.ctx-item:hover{background:rgba(255,255,255,.1)}
+.ctx-sep{border-top:1px solid rgba(255,255,255,.1);margin-top:4px;padding-top:8px}
+
+@media(max-width:640px){.side-panel{width:260px}.verse-block{font-size:16px}}
+@media(max-width:520px){.study-body{flex-direction:column}.side-panel{width:100%;height:260px;border-left:none;border-top:1px solid var(--border-strong)}}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-cross"><div class="splash-halo"></div></div>
+  <div class="splash-title">Logos Light</div>
+  <div class="splash-sub">Daily Word · Deep Study · Worship</div>
+  <div class="splash-verse">"Your word is a lamp to my feet and a light to my path."</div>
+  <div class="splash-ref">— Psalm 119:105</div>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+  <button class="splash-btn" id="enterBtn" onclick="enterApp()">Open Scripture ✦</button>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-brand">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <rect x="10.5" y="2" width="3" height="20" rx="1.5" fill="#e8c97a"/>
+        <rect x="2" y="9" width="20" height="3" rx="1.5" fill="#e8c97a"/>
+        <circle cx="12" cy="12" r="3.5" fill="none" stroke="#b8832a" stroke-width="1.5"/>
+      </svg>
+      <span class="brand-name">Logos Light</span>
+    </div>
+    <div class="ntab on" id="nav-daily" onclick="switchView('daily')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e8c97a" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Daily</span>
+    </div>
+    <div class="ntab" id="nav-study" onclick="switchView('study')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e8c97a" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Study</span>
+    </div>
+    <div class="ntab" id="nav-worship" onclick="switchView('worship')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e8c97a" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <span>Worship</span>
+    </div>
+  </div>
+
+  <!-- DAILY VIEW -->
+  <div class="view on" id="view-daily">
+    <div class="ts-wrap">
+      <button class="tsbtn on" id="ts-morning" onclick="setTOD('morning')">☀️ Morning</button>
+      <button class="tsbtn" id="ts-afternoon" onclick="setTOD('afternoon')">🌤 Afternoon</button>
+      <button class="tsbtn" id="ts-evening" onclick="setTOD('evening')">🌙 Evening</button>
+    </div>
+    <div class="daily-scroll">
+      <div id="heroBlock"></div>
+      <div class="daily-inner">
+        <div class="dsec">
+          <div class="dsh">Today's Reading Plan</div>
+          <div class="rp-card" onclick="openReading()">
+            <div class="rp-badge">Day <span id="dayNum">1</span> of 365</div>
+            <div class="rp-title" id="rpTitle">Loading…</div>
+            <div class="rp-ref" id="rpRef"></div>
+            <div class="rp-preview" id="rpPreview"></div>
+            <div class="rp-open">Open in Study ›</div>
+          </div>
+        </div>
+        <div class="dsec">
+          <div class="dsh" id="songDSH">Morning Worship Songs</div>
+          <div class="songs-list" id="dailySongsList"></div>
+        </div>
+        <div class="dsec">
+          <div class="dsh">Today's Devotional</div>
+          <div class="devo-card">
+            <div class="devo-title" id="devoTitle"></div>
+            <div class="devo-body" id="devoBody"></div>
+            <div class="devo-reflection" id="devoRefl"></div>
+            <div class="devo-share">
+              <span style="font-size:11px;color:rgba(245,237,216,.5);align-self:center;letter-spacing:.5px">SHARE</span>
+              <button class="devo-sbtn" onclick="shareDevo('fb')"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook</button>
+              <button class="devo-sbtn" onclick="shareDevo('wa')"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.989.518 3.86 1.426 5.482L2.05 22l4.635-1.358A10.007 10.007 0 0 0 12 22c5.522 0 10-4.477 10-10S17.522 2 12 2z"/></svg>WhatsApp</button>
+              <button class="devo-sbtn" onclick="shareDevo('ig')"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="var(--night)"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="var(--night)" stroke-width="2"/></svg>Instagram</button>
+              <button class="devo-sbtn" onclick="shareDevo('cp')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDY VIEW -->
+  <div class="view" id="view-study">
+    <div class="study-top">
+      <select id="bookSel" onchange="loadPassage()">
+        <option value="john">John</option>
+        <option value="genesis">Genesis</option>
+        <option value="psalms">Psalms 23</option>
+        <option value="romans">Romans 8</option>
+        <option value="1cor">1 Corinthians 13</option>
+        <option value="proverbs">Proverbs 3</option>
+        <option value="isaiah">Isaiah 40</option>
+        <option value="ephesians">Ephesians 2</option>
+      </select>
+      <div class="sp"></div>
+      <button class="tbtn" id="hlBtn" onclick="toggleHL()">Highlight</button>
+      <button class="tbtn" id="noteBtn" onclick="toggleNote()">+ Note</button>
+    </div>
+    <div class="hl-bar">
+      <span class="hl-label">Color:</span>
+      <div class="hl-dot hdy on" id="dot-y" onclick="setHLC('y')"></div>
+      <div class="hl-dot hdb" id="dot-b" onclick="setHLC('b')"></div>
+      <div class="hl-dot hdg" id="dot-g" onclick="setHLC('g')"></div>
+      <div class="hl-dot hdp" id="dot-p" onclick="setHLC('p')"></div>
+      <div class="hl-dot hdclr" id="dot-clr" onclick="setHLC('clr')">✕</div>
+      <div class="sp"></div>
+      <button class="mchip" id="redBtn" onclick="toggleRed()">Red letters</button>
+    </div>
+    <div class="study-body">
+      <div class="reading-col" id="readingCol"></div>
+      <div class="side-panel">
+        <div class="ptabs">
+          <div class="ptab on" onclick="showPTab('word')">Word</div>
+          <div class="ptab" onclick="showPTab('context')">Context</div>
+          <div class="ptab" onclick="showPTab('notes')">Notes</div>
+        </div>
+        <div class="pbody">
+          <div class="psec show" id="ptab-word">
+            <div class="hint">Tap any word to explore its original Hebrew or Greek meaning, Strong's reference, and usage across scripture.</div>
+          </div>
+          <div class="psec" id="ptab-context">
+            <div class="ctx-scroll" id="ctxContent"><div class="hint">Tap a verse number for historical background, or ask below.</div></div>
+            <div class="ask-row">
+              <input id="askInput" placeholder="Ask about this passage…" onkeydown="if(event.key==='Enter')askQ()"/>
+              <button onclick="askQ()">Ask</button>
+            </div>
+          </div>
+          <div class="psec" id="ptab-notes">
+            <div id="notesDisplay"></div>
+            <div id="noteInputArea" style="display:none" class="note-area">
+              <div class="note-ref" id="noteRefLabel"></div>
+              <textarea id="noteText" placeholder="Write your reflection here…"></textarea>
+              <button class="save-btn" onclick="saveNote()">Save Note</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORSHIP VIEW -->
+  <div class="view" id="view-worship">
+    <div class="worship-scroll">
+      <div class="worship-hero">
+        <div class="wh-title">Worship Songs</div>
+        <div class="wh-sub">Morning · Afternoon · Evening — all with YouTube links</div>
+      </div>
+      <div class="w-sections" id="worshipContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="share-modal-bg" id="shareModal" onclick="closeShareModal(event)">
+  <div class="share-modal">
+    <div class="sm-handle"></div>
+    <div class="sm-header">
+      <div class="sm-title" id="smTitle">Share this verse</div>
+      <div class="sm-preview" id="smPreview"></div>
+      <div class="sm-ref" id="smRef"></div>
+    </div>
+    <div class="sm-options">
+      <a class="sm-opt" id="smFB" href="#" target="_blank" rel="noopener" onclick="smTrack('fb')">
+        <div class="sm-opt-icon fb"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div>
+        <div class="sm-opt-label">Facebook</div>
+        <div class="sm-opt-sub">Share to your timeline</div>
+      </a>
+      <a class="sm-opt" id="smWA" href="#" target="_blank" rel="noopener" onclick="smTrack('wa')">
+        <div class="sm-opt-icon wa"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.989.518 3.86 1.426 5.482L2.05 22l4.635-1.358A10.007 10.007 0 0 0 12 22c5.522 0 10-4.477 10-10S17.522 2 12 2z"/></svg></div>
+        <div class="sm-opt-label">WhatsApp</div>
+        <div class="sm-opt-sub">Send to a chat or group</div>
+      </a>
+      <a class="sm-opt" id="smIG" href="#" target="_blank" rel="noopener" onclick="smTrack('ig')">
+        <div class="sm-opt-icon ig"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="white"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="white" stroke-width="2"/></svg></div>
+        <div class="sm-opt-label">Instagram</div>
+        <div class="sm-opt-sub">Copy text to post</div>
+      </a>
+      <div class="sm-opt" onclick="smCopyText()">
+        <div class="sm-opt-icon cp"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="white"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" fill="none" stroke="white" stroke-width="2"/></svg></div>
+        <div class="sm-opt-label">Copy Text</div>
+        <div class="sm-opt-sub">Paste anywhere</div>
+      </div>
+    </div>
+    <div class="sm-copied" id="smCopied">Copied to clipboard!</div>
+    <button class="sm-cancel" onclick="closeShareModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div class="ctx" id="ctxMenu">
+  <div class="ctx-item" onclick="ctxHL()">Highlight selection</div>
+  <div class="ctx-item" onclick="ctxWord()">Word study</div>
+  <div class="ctx-item" onclick="ctxShare()">Share this verse</div>
+  <div class="ctx-item ctx-sep" onclick="ctxNote()">Add note</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════
+const TIME_DATA = {
+  morning:{cls:'morning',label:'MORNING DEVOTION',greeting:'Good Morning',verses:[
+    {text:"This is the day that the Lord has made; let us rejoice and be glad in it.",ref:"Psalm 118:24",theme:"Gratitude & Joy"},
+    {text:"The steadfast love of the Lord never ceases; his mercies never come to an end; they are new every morning.",ref:"Lamentations 3:22–23",theme:"God's Faithfulness"},
+    {text:"Seek first the kingdom of God and his righteousness, and all these things will be added to you.",ref:"Matthew 6:33",theme:"Priorities"},
+    {text:"In the morning, O Lord, you hear my voice; in the morning I lay my requests before you.",ref:"Psalm 5:3",theme:"Morning Prayer"},
+    {text:"Because of the Lord's great love we are not consumed, for his compassions never fail.",ref:"Lamentations 3:22",theme:"God's Mercy"},
+    {text:"Let the morning bring me word of your unfailing love, for I have put my trust in you.",ref:"Psalm 143:8",theme:"Trust"},
+    {text:"The Lord's lovingkindnesses indeed never cease, for his compassions never fail. They are new every morning.",ref:"Lamentations 3:22–23",theme:"Renewal"}
+  ]},
+  afternoon:{cls:'afternoon',label:'MIDDAY REFLECTION',greeting:'Good Afternoon',verses:[
+    {text:"I can do all things through Christ who strengthens me.",ref:"Philippians 4:13",theme:"Strength"},
+    {text:"Come to me, all who labour and are heavy laden, and I will give you rest.",ref:"Matthew 11:28",theme:"Rest in Christ"},
+    {text:"Trust in the Lord with all your heart, and do not lean on your own understanding.",ref:"Proverbs 3:5",theme:"Trust"},
+    {text:"And my God will supply every need of yours according to his riches in glory in Christ Jesus.",ref:"Philippians 4:19",theme:"Provision"},
+    {text:"Cast all your anxiety on him because he cares for you.",ref:"1 Peter 5:7",theme:"Peace"},
+    {text:"For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you.",ref:"Jeremiah 29:11",theme:"Hope"},
+    {text:"Be still, and know that I am God.",ref:"Psalm 46:10",theme:"Stillness"}
+  ]},
+  evening:{cls:'evening',label:'EVENING PRAYER',greeting:'Good Evening',verses:[
+    {text:"In peace I will lie down and sleep, for you alone, O Lord, make me dwell in safety.",ref:"Psalm 4:8",theme:"Rest"},
+    {text:"The Lord your God is in your midst, a mighty one who will save; he will rejoice over you with gladness.",ref:"Zephaniah 3:17",theme:"God's Delight"},
+    {text:"He gives strength to the weary and increases the power of the weak.",ref:"Isaiah 40:29",theme:"Renewal"},
+    {text:"Surely goodness and mercy shall follow me all the days of my life.",ref:"Psalm 23:6",theme:"Gratitude"},
+    {text:"Blessed are all who take refuge in him.",ref:"Psalm 2:12",theme:"Refuge"},
+    {text:"When you lie down, you will not be afraid; when you lie down, your sleep will be sweet.",ref:"Proverbs 3:24",theme:"Sweet Rest"},
+    {text:"He who dwells in the shelter of the Most High will rest in the shadow of the Almighty.",ref:"Psalm 91:1",theme:"Protection"}
+  ]}
+};
+
+const DEVOTIONALS = {
+  morning:{title:"Start Where You Are",body:"Each morning is a fresh invitation from God. Before the tasks pile up and the noise of the day begins, there is a quiet moment — a sacred space — where the Creator of the universe says: I am here. He does not wait for you to be perfect, prepared, or put-together. He meets you right where you are, with exactly what you have. Every sunrise is His love letter to you, written in light.",reflection:"Lord, before this day unfolds, I choose to acknowledge You first. Order my steps. Renew my mind. Let my first breath be a prayer."},
+  afternoon:{title:"You Are Not Alone Mid-Day",body:"By midday, the weight of life can settle on our shoulders. Emails, decisions, disappointments, and the busyness of living can crowd out the awareness of God's presence. But here is the truth: He has not left. The God who was with you this morning is with you right now — in this very moment, in this very situation. You are not carrying this alone.",reflection:"In whatever I am facing right now, You are here. I release this burden to You. Renew my strength and my perspective for the rest of this day."},
+  evening:{title:"The Day Is Done, He Is Faithful",body:"As the day closes, it is natural to replay what went wrong — the words you wish you hadn't said, the things left undone. But God's Word invites you into a different posture: gratitude and rest. He has been faithful today in ways you may not have even noticed. Every breath was a gift. Every moment of grace was His hand at work.",reflection:"Thank You for today — even the hard parts. I trust You with tomorrow. I choose rest. Name three things from today that you're grateful for before you sleep."}
+};
+
+const SONGS = {
+  morning:[
+    {title:"Great Is Thy Faithfulness",artist:"Thomas Chisholm",tags:["Hymn","Faithfulness"],theme:"Based on Lamentations 3:22–23",yt:"https://www.youtube.com/results?search_query=Great+Is+Thy+Faithfulness+hymn",verse:"The steadfast love of the Lord never ceases — Lam 3:22",emoji:"🌅",tod:"m"},
+    {title:"10,000 Reasons (Bless the Lord)",artist:"Matt Redman",tags:["Worship","Praise"],theme:"Psalm 103 — Morning praise",yt:"https://www.youtube.com/results?search_query=10000+Reasons+Matt+Redman+official",verse:"Bless the Lord, O my soul — Psalm 103:1",emoji:"🌄",tod:"m"},
+    {title:"Good Good Father",artist:"Chris Tomlin",tags:["Contemporary","Identity"],theme:"Romans 8 — Adopted as children",yt:"https://www.youtube.com/results?search_query=Good+Good+Father+Chris+Tomlin+official",verse:"You are a good, good Father — Romans 8:15",emoji:"☀️",tod:"m"},
+    {title:"New Every Morning",artist:"Sovereign Grace Music",tags:["Devotional","Renewal"],theme:"Lamentations 3 — His mercies",yt:"https://www.youtube.com/results?search_query=New+Every+Morning+Sovereign+Grace",verse:"His mercies are new every morning — Lam 3:23",emoji:"🌤",tod:"m"},
+  ],
+  afternoon:[
+    {title:"Way Maker",artist:"Sinach",tags:["African Gospel","Miracle"],theme:"God makes a way — Isaiah 43:19",yt:"https://www.youtube.com/results?search_query=Way+Maker+Sinach+official",verse:"Behold, I am doing a new thing — Isaiah 43:19",emoji:"🌤",tod:"a"},
+    {title:"Oceans (Where Feet May Fail)",artist:"Hillsong United",tags:["Faith","Trust"],theme:"Peter walking on water — Matthew 14",yt:"https://www.youtube.com/results?search_query=Oceans+Hillsong+United+official",verse:"You call me out upon the waters — Matthew 14:29",emoji:"🌊",tod:"a"},
+    {title:"Reckless Love",artist:"Cory Asbury",tags:["Worship","Grace"],theme:"The Father's pursuit — Luke 15",yt:"https://www.youtube.com/results?search_query=Reckless+Love+Cory+Asbury+official",verse:"Nothing can separate us from the love of God — Romans 8:38",emoji:"💛",tod:"a"},
+    {title:"Strength of My Life",artist:"Maranatha Music",tags:["Strength","Hymn"],theme:"Psalm 27 — The Lord is my light",yt:"https://www.youtube.com/results?search_query=Strength+of+my+life+Maranatha+worship",verse:"The Lord is my light and my salvation — Psalm 27:1",emoji:"🏔",tod:"a"},
+  ],
+  evening:[
+    {title:"It Is Well With My Soul",artist:"Horatio Spafford",tags:["Hymn","Peace"],theme:"Peace that passes understanding",yt:"https://www.youtube.com/results?search_query=It+Is+Well+With+My+Soul+hymn",verse:"The peace of God which surpasses all understanding — Phil 4:7",emoji:"🌙",tod:"e"},
+    {title:"What A Beautiful Name",artist:"Hillsong Worship",tags:["Worship","Adoration"],theme:"Exalting Christ — Philippians 2",yt:"https://www.youtube.com/results?search_query=What+a+Beautiful+Name+Hillsong+official",verse:"At the name of Jesus every knee should bow — Phil 2:10",emoji:"✨",tod:"e"},
+    {title:"Be Still My Soul",artist:"Katharina von Schlegel",tags:["Hymn","Rest"],theme:"Evening rest in God's hands",yt:"https://www.youtube.com/results?search_query=Be+Still+My+Soul+hymn",verse:"In peace I will lie down and sleep — Psalm 4:8",emoji:"🌕",tod:"e"},
+    {title:"Goodness of God",artist:"Bethel Music / Jenn Johnson",tags:["Worship","Testimony"],theme:"Evening gratitude for God's goodness",yt:"https://www.youtube.com/results?search_query=Goodness+of+God+Bethel+Music+official",verse:"Surely goodness and mercy shall follow me — Psalm 23:6",emoji:"🌟",tod:"e"},
+  ]
+};
+
+const READING_PLAN = [
+  {title:'In the Beginning Was the Word',ref:'John 1:1–18',preview:'Before time itself, the Word existed. John opens his Gospel with the most breathtaking declaration in all of scripture.',passage:'john'},
+  {title:'God Creates the World',ref:'Genesis 1:1–27',preview:'The very first words of the Bible: "In the beginning, God…" Creation was spoken into existence by a God who is both powerful and personal.',passage:'genesis'},
+  {title:'The Lord Is My Shepherd',ref:'Psalm 23:1–6',preview:'Perhaps the most beloved poem ever written. David captures what it means to be cared for by God — led, restored, and forever loved.',passage:'psalms'},
+  {title:'Nothing Can Separate Us',ref:'Romans 8:1–39',preview:'No condemnation. No separation. Paul builds a fortress of assurance — we are safe in God\'s love, forever and completely.',passage:'romans'},
+  {title:'The Greatest of These Is Love',ref:'1 Corinthians 13:1–13',preview:'Gifts without love are empty noise. Paul paints a portrait of agapē love that is patient, kind, and unbreakable.',passage:'1cor'},
+  {title:'Trust in the Lord',ref:'Proverbs 3:5–6',preview:'Simple. Profound. Life-changing. Two verses that have redirected the course of millions of lives.',passage:'proverbs'},
+  {title:'He Renews Our Strength',ref:'Isaiah 40:28–31',preview:'When you are weary — this passage speaks directly to your soul with the promise of divine renewal.',passage:'isaiah'},
+];
+
+const PASSAGES = {
+  john:{title:"John",chapter:"Chapter 1",lang:"greek",verses:[
+    {n:1,t:"In the beginning was the Word, and the Word was with God, and the Word was God.",red:false},
+    {n:2,t:"He was in the beginning with God.",red:false},
+    {n:3,t:"All things were made through him, and without him was not any thing made that was made.",red:false},
+    {n:4,t:"In him was life, and the life was the light of men.",red:false},
+    {n:5,t:"The light shines in the darkness, and the darkness has not overcome it.",red:false},
+    {n:14,t:"And the Word became flesh and dwelt among us, and we have seen his glory, glory as of the only Son from the Father, full of grace and truth.",red:false},
+    {n:17,t:"For the law was given through Moses; grace and truth came through Jesus Christ.",red:false},
+    {n:18,t:"No one has ever seen God; the only God, who is at the Father's side, he has made him known.",red:false}
+  ]},
+  genesis:{title:"Genesis",chapter:"Chapter 1",lang:"hebrew",verses:[
+    {n:1,t:"In the beginning, God created the heavens and the earth.",red:false},
+    {n:2,t:"The earth was without form and void, and darkness was over the face of the deep. And the Spirit of God was hovering over the face of the waters.",red:false},
+    {n:3,t:"And God said, Let there be light, and there was light.",red:false},
+    {n:4,t:"And God saw that the light was good. And God separated the light from the darkness.",red:false},
+    {n:26,t:"Then God said, Let us make man in our image, after our likeness.",red:false},
+    {n:27,t:"So God created man in his own image, in the image of God he created him; male and female he created them.",red:false}
+  ]},
+  psalms:{title:"Psalms",chapter:"Chapter 23",lang:"hebrew",verses:[
+    {n:1,t:"The Lord is my shepherd; I shall not want.",red:false},
+    {n:2,t:"He makes me lie down in green pastures. He leads me beside still waters.",red:false},
+    {n:3,t:"He restores my soul. He leads me in paths of righteousness for his name's sake.",red:false},
+    {n:4,t:"Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me; your rod and your staff, they comfort me.",red:false},
+    {n:5,t:"You prepare a table before me in the presence of my enemies; you anoint my head with oil; my cup overflows.",red:false},
+    {n:6,t:"Surely goodness and mercy shall follow me all the days of my life, and I shall dwell in the house of the Lord forever.",red:false}
+  ]},
+  romans:{title:"Romans",chapter:"Chapter 8",lang:"greek",verses:[
+    {n:1,t:"There is therefore now no condemnation for those who are in Christ Jesus.",red:false},
+    {n:2,t:"For the law of the Spirit of life has set you free in Christ Jesus from the law of sin and death.",red:false},
+    {n:28,t:"And we know that for those who love God all things work together for good, for those who are called according to his purpose.",red:false},
+    {n:38,t:"For I am sure that neither death nor life, nor angels nor rulers, nor things present nor things to come, nor powers,",red:false},
+    {n:39,t:"nor height nor depth, nor anything else in all creation, will be able to separate us from the love of God in Christ Jesus our Lord.",red:false}
+  ]},
+  "1cor":{title:"1 Corinthians",chapter:"Chapter 13",lang:"greek",verses:[
+    {n:1,t:"If I speak in the tongues of men and of angels, but have not love, I am a noisy gong or a clanging cymbal.",red:false},
+    {n:4,t:"Love is patient and kind; love does not envy or boast; it is not arrogant",red:false},
+    {n:7,t:"Love bears all things, believes all things, hopes all things, endures all things.",red:false},
+    {n:13,t:"So now faith, hope, and love abide, these three; but the greatest of these is love.",red:false}
+  ]},
+  proverbs:{title:"Proverbs",chapter:"Chapter 3",lang:"hebrew",verses:[
+    {n:5,t:"Trust in the Lord with all your heart, and do not lean on your own understanding.",red:false},
+    {n:6,t:"In all your ways acknowledge him, and he will make straight your paths.",red:false},
+    {n:7,t:"Be not wise in your own eyes; fear the Lord, and turn away from evil.",red:false},
+    {n:24,t:"When you lie down, you will not be afraid; when you lie down, your sleep will be sweet.",red:false}
+  ]},
+  isaiah:{title:"Isaiah",chapter:"Chapter 40",lang:"hebrew",verses:[
+    {n:28,t:"Have you not known? Have you not heard? The Lord is the everlasting God, the Creator of the ends of the earth. He does not faint or grow weary.",red:false},
+    {n:29,t:"He gives power to the faint, and to him who has no might he increases strength.",red:false},
+    {n:30,t:"Even youths shall faint and be weary, and young men shall fall exhausted;",red:false},
+    {n:31,t:"but they who wait for the Lord shall renew their strength; they shall mount up with wings like eagles; they shall run and not be weary; they shall walk and not faint.",red:false}
+  ]},
+  ephesians:{title:"Ephesians",chapter:"Chapter 2",lang:"greek",verses:[
+    {n:4,t:"But God, being rich in mercy, because of the great love with which he loved us,",red:false},
+    {n:5,t:"even when we were dead in our trespasses, made us alive together with Christ — by grace you have been saved.",red:false},
+    {n:8,t:"For by grace you have been saved through faith. And this is not your own doing; it is the gift of God,",red:false},
+    {n:9,t:"not a result of works, so that no one may boast.",red:false},
+    {n:10,t:"For we are his workmanship, created in Christ Jesus for good works, which God prepared beforehand, that we should walk in them.",red:false}
+  ]}
+};
+
+const WORDS = {
+  word:{original:"λόγος",translit:"lógos",strongs:"G3056",pos:"Noun",lang:"Greek",def:"Word, speech, the divine expression. The eternal pre-existent Son of God — not just a message but a Person who entered history.",usage:"Used 330× in NT. John uses it uniquely to describe Christ as the creative and revelatory expression of God."},
+  beginning:{original:"ἀρχή / בְּרֵאשִׁית",translit:"archē / bərēʾšît",strongs:"G746 / H7225",pos:"Noun",lang:"Greek & Hebrew",def:"The primordial origin — before time itself. Both John 1:1 and Genesis 1:1 open with this word, intentionally linking Christ to all of creation.",usage:"The parallel is deliberate: Christ is the origin and author of all things."},
+  god:{original:"θεός",translit:"theós",strongs:"G2316",pos:"Noun",lang:"Greek",def:"God; the supreme deity. In John 1:1, 'the Word was God' uses θεός without the definite article — indicating divine nature, not just identity.",usage:"This anarthrous construction is key to Trinitarian theology: the Word is fully divine in nature."},
+  light:{original:"φῶς",translit:"phōs",strongs:"G5457",pos:"Noun",lang:"Greek",def:"Light — divine truth, revelation, and moral purity. Contrasted with the darkness of sin and ignorance.",usage:"John uses φῶς 23×. Jesus claims to BE the light of the world (John 8:12) — not merely to bring it."},
+  life:{original:"ζωή",translit:"zōē",strongs:"G2222",pos:"Noun",lang:"Greek",def:"Divine, eternal, qualitative life — distinct from mere physical existence (βίος). The God-kind of life shared with believers.",usage:"'Eternal life' in John is a present quality of knowing God, not merely future duration (John 17:3)."},
+  love:{original:"ἀγάπη",translit:"agápē",strongs:"G26",pos:"Noun",lang:"Greek",def:"Selfless, unconditional, covenant love. A chosen, active commitment — not a feeling. God IS agapē (1 John 4:8).",usage:"Paul's Hymn to Love (1 Cor 13) uses ἀγάπη exclusively. It was a rare word before Christians made it central to their identity."},
+  created:{original:"בָּרָא",translit:"bārāʾ",strongs:"H1254",pos:"Verb",lang:"Hebrew",def:"To create — used exclusively of God in the OT. Never applied to human activity. Implies creation from nothing (ex nihilo).",usage:"Appears 48× in OT. God alone is always the subject — the unique act that distinguishes Creator from creation."},
+  shepherd:{original:"רֹעֶה",translit:"rōʿeh",strongs:"H7462",pos:"Participle",lang:"Hebrew",def:"Shepherd, to pasture/tend. In the ancient Near East, 'shepherd' was a royal title — kings were called shepherds of their people.",usage:"YHWH as shepherd (Ps 23, Ezek 34) confronts failed human leaders. Jesus fulfills this completely in John 10."},
+  soul:{original:"נֶפֶשׁ",translit:"nép̄eš",strongs:"H5315",pos:"Noun",lang:"Hebrew",def:"Soul, life, living being — the whole animated person. Hebrew sees the individual as a unity, not a soul trapped in a body.",usage:"Used 754× in OT. 'He restores my soul' = He renews my whole self — physical, emotional, and spiritual together."},
+  grace:{original:"χάρις",translit:"cháris",strongs:"G5485",pos:"Noun",lang:"Greek",def:"Unmerited favour freely given. God's gift that cannot be earned — an expression of His character, not ours.",usage:"Paul uses χάρις 100×. 'By grace you have been saved' (Eph 2:8) — grace is both the source and the method."},
+  spirit:{original:"רוּחַ",translit:"rûaḥ",strongs:"H7307",pos:"Noun",lang:"Hebrew",def:"Spirit, wind, breath — invisible, vital, sovereign. The divine animating presence of God.",usage:"Used 378× in OT. The רוּחַ hovered over the waters at creation (Gen 1:2) and now dwells in every believer."},
+  mercy:{original:"חֶסֶד",translit:"ḥeseḏ",strongs:"H2617",pos:"Noun",lang:"Hebrew",def:"Lovingkindness, covenant loyalty, steadfast love. God's faithful commitment that refuses to let go of His people.",usage:"One of the richest OT words. Occurs 248× — the bedrock of Israel's confidence in God throughout the Psalms."},
+  truth:{original:"ἀλήθεια",translit:"alētheia",strongs:"G225",pos:"Noun",lang:"Greek",def:"Truth — ultimate reality, the full disclosure of what is real. In Greek, a-lētheia means 'un-hiddenness.'",usage:"Jesus claims to BE truth (John 14:6), not just to speak it — a stunning personal claim unlike any other teacher."},
+  trust:{original:"בָּטַח",translit:"bāṭaḥ",strongs:"H982",pos:"Verb",lang:"Hebrew",def:"To trust, to lean on, to feel safe. Active reliance on God's character — not passive hope but confident rest in who He is.",usage:"Proverbs 3:5 commands: make God your foundation. The opposite of trusting self-sufficiency."},
+  strength:{original:"כֹּחַ",translit:"kōaḥ",strongs:"H3581",pos:"Noun",lang:"Hebrew",def:"Strength, power, physical and spiritual capacity. In Isaiah 40, God gives His own strength to those who wait on Him.",usage:"The promise is not that God prevents weariness — but that He replaces it with supernatural renewal."},
+  faith:{original:"πίστις",translit:"pístis",strongs:"G4102",pos:"Noun",lang:"Greek",def:"Faith, trust, belief — active reliance on God's character and promises. Not blind feeling but reasoned, committed trust.",usage:"The cornerstone of salvation (Eph 2:8). Faith is both God's gift and the channel through which grace flows."},
+  workmanship:{original:"ποίημα",translit:"poíēma",strongs:"G4161",pos:"Noun",lang:"Greek",def:"Workmanship, handiwork, masterpiece — the root of the English word 'poem'. You are God's carefully crafted work of art.",usage:"Ephesians 2:10 is one of the most personal verses in all of Paul's writing: you are not an accident — you are God's poem."}
+};
+
+const CONTEXT = {
+  john:"John 1 opens with a stunning theological prologue drawing on Stoic 'Logos' philosophy and Jewish Wisdom tradition. John declares the cosmic rational principle is not an abstraction but a Person: Jesus Christ. The prologue follows a chiastic (ring) structure: pre-existence → incarnation → rejection/reception → becoming children of God.",
+  genesis:"Genesis 1 is not a modern science textbook but an ancient cosmological theology — a liturgical Hebrew prose-poem declaring God's sovereignty over all creation. The repeated 'God said... it was so' establishes the power of divine speech — the same theme John picks up in his Gospel prologue.",
+  psalms:"Psalm 23 uses two ancient Near Eastern metaphors: the shepherd-king (vv.1–4) and the generous host (vv.5–6). The covenant name YHWH (LORD) carries the weight of God's personal commitment. The 'valley of the shadow of death' (tsalmāwet) = deep darkness — a zone of mortal danger where trust is the only resource.",
+  romans:"Romans 8 is the theological summit of Paul's letter — moving from 'no condemnation' (v.1) to 'nothing can separate us' (v.39). The Holy Spirit appears as liberator, life-giver, adoption-confirmer, intercessor, and guarantor of glory. It is a complete, unbreakable circle of assurance.",
+  "1cor":"1 Corinthians 13 sits strategically between chapters on spiritual gifts (12 & 14). Paul's point: gifts without love are empty performance. Each of his 15 descriptions of love was likely a pointed critique of specific behaviors in the Corinthian church — real people with real problems.",
+  proverbs:"Proverbs 3:5–6 distills wisdom to two commands: trust and acknowledge. The Hebrew 'lean not' (šāʿan) means to put weight on — don't put your full weight on your own reasoning. 'Paths' (ʾōraḥ) refers to a well-worn life path — God promises to make the whole journey straight.",
+  isaiah:"Isaiah 40 was written to a people in exile — crushed, confused, and exhausted. The prophet's message: your God never gets tired. The image of eagles' wings refers to thermal soaring — not muscular effort, but surrender to a force greater than yourself.",
+  ephesians:"Ephesians 2:1–10 is Paul's biography of every believer: dead → made alive → seated in heavenly places. 'Workmanship' (v.10) is ποίημα (poiēma) — the root of 'poem.' You are God's carefully composed masterpiece, written for a purpose prepared before you were born."
+};
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let S = {
+  tod:'morning', book:'john',
+  hlColor:'y', hlMode:false, noteMode:false, redLetters:false,
+  notes:{}, highlights:{},
+  currentVerse:null, lastWord:null, editingNote:null,
+  sharePayload:{text:'',ref:'',type:'verse'}
+};
+
+// ══════════════════════════════════════════════════════════
+// SPLASH
+// ══════════════════════════════════════════════════════════
+setTimeout(()=>document.getElementById('enterBtn').style.display='block', 2600);
+function enterApp(){
+  document.getElementById('splash').classList.add('out');
+  setTimeout(()=>{document.getElementById('splash').style.display='none';document.getElementById('app').classList.add('show');},900);
+  initDaily(); renderPassage(); renderNotes(); renderWorshipView();
+}
+
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+function switchView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('on'));
+  document.getElementById('view-'+v).classList.add('on');
+  document.getElementById('nav-'+v).classList.add('on');
+}
+
+// ══════════════════════════════════════════════════════════
+// DAILY
+// ══════════════════════════════════════════════════════════
+function initDaily(){
+  const h=new Date().getHours();
+  setTOD(h<12?'morning':h<17?'afternoon':'evening');
+  const start=new Date(new Date().getFullYear(),0,0);
+  const day=Math.floor((new Date()-start)/(864e5));
+  document.getElementById('dayNum').textContent=day;
+  const plan=READING_PLAN[(day-1)%READING_PLAN.length];
+  document.getElementById('rpTitle').textContent=plan.title;
+  document.getElementById('rpRef').textContent=plan.ref;
+  document.getElementById('rpPreview').textContent=plan.preview;
+  window._plan=plan;
+  renderDevo();
+}
+
+function setTOD(t){
+  S.tod=t;
+  ['morning','afternoon','evening'].forEach(x=>document.getElementById('ts-'+x).classList.toggle('on',x===t));
+  renderHero(); renderDailySongs();
+  document.getElementById('songDSH').textContent=t==='morning'?'Morning Worship Songs':t==='afternoon'?'Midday Worship Songs':'Evening Worship Songs';
+}
+
+function renderHero(){
+  const c=TIME_DATA[S.tod];
+  const v=c.verses[new Date().getDate()%c.verses.length];
+  const d=new Date();
+  const ds=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('heroBlock').innerHTML=`
+    <div class="time-hero ${c.cls}">
+      <div class="time-label">${c.label}</div>
+      <div class="time-greeting">${c.greeting}</div>
+      <div class="time-date">${ds}</div>
+      <div class="time-vcard">
+        <div class="tvtext">"${v.text}"</div>
+        <div class="tvref">— ${v.ref}</div>
+        <div class="tvtheme">Theme: ${v.theme}</div>
+        <div class="hero-share">
+          <span style="font-size:11px;color:rgba(245,237,216,.5);align-self:center;letter-spacing:.5px">SHARE</span>
+          <button class="hsbtn fb-h" onclick="openShareModal('${escQ(v.text)}','${escQ(v.ref)}','verse')"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook</button>
+          <button class="hsbtn wa-h" onclick="openShareModal('${escQ(v.text)}','${escQ(v.ref)}','verse')"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.989.518 3.86 1.426 5.482L2.05 22l4.635-1.358A10 10 0 0 0 12 22c5.522 0 10-4.477 10-10S17.522 2 12 2z"/></svg>WhatsApp</button>
+          <button class="hsbtn ig-h" onclick="openShareModal('${escQ(v.text)}','${escQ(v.ref)}','verse')"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="rgba(0,0,0,0)"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="white" stroke-width="1.5"/></svg>Instagram</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderDailySongs(){
+  const songs=SONGS[S.tod];
+  document.getElementById('dailySongsList').innerHTML=songs.map(s=>`
+    <div class="scard">
+      <div class="scard-inner">
+        <div class="sthumb ${s.tod}">${s.emoji}</div>
+        <div class="sinfo">
+          <div class="stitle">${s.title}</div>
+          <div class="sartist">${s.artist}</div>
+          <div class="stags">${s.tags.map(t=>`<span class="stag">${t}</span>`).join('')}</div>
+        </div>
+        <a class="yt-btn" href="${s.yt}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2 .3 4.1.3 4.1s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.5 12 21.5 12 21.5s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2 .3-4.1v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.4l8.1 3.6-8.1 3.5z"/></svg>
+          Play
+        </a>
+      </div>
+      <div class="song-verse">"${s.verse}"</div>
+    </div>`).join('');
+}
+
+function renderDevo(){
+  const h=new Date().getHours();
+  const k=h<12?'morning':h<17?'afternoon':'evening';
+  const d=DEVOTIONALS[k];
+  document.getElementById('devoTitle').textContent=d.title;
+  document.getElementById('devoBody').textContent=d.body;
+  document.getElementById('devoRefl').textContent=d.reflection;
+}
+
+function shareDevo(platform){
+  const d=DEVOTIONALS[S.tod];
+  openShareModal(d.body.substring(0,200)+'…',d.title,'devotional',platform);
+}
+
+function openReading(){
+  if(!window._plan)return;
+  S.book=window._plan.passage;
+  document.getElementById('bookSel').value=S.book;
+  renderPassage(); switchView('study');
+}
+
+// ══════════════════════════════════════════════════════════
+// SHARE MODAL
+// ══════════════════════════════════════════════════════════
+function openShareModal(text, ref, type, direct){
+  S.sharePayload={text,ref,type};
+  document.getElementById('smTitle').textContent=type==='devotional'?'Share this devotional':'Share this verse';
+  document.getElementById('smPreview').textContent='"'+text.substring(0,120)+(text.length>120?'…':'')+'"';
+  document.getElementById('smRef').textContent='— '+ref;
+  document.getElementById('smCopied').style.display='none';
+  const shareText=encodeURIComponent('"'+text+'" — '+ref+'\n\nShared from Logos Light 📖');
+  const appUrl=encodeURIComponent(window.location.href);
+  document.getElementById('smFB').href='https://www.facebook.com/sharer/sharer.php?u='+appUrl+'&quote='+shareText;
+  document.getElementById('smWA').href='https://wa.me/?text='+shareText+'%0A%0A'+appUrl;
+  document.getElementById('smIG').href='https://www.instagram.com/';
+  document.getElementById('smIG').onclick=function(e){e.preventDefault();smCopyText();window.open('https://www.instagram.com/','_blank');};
+  if(direct){
+    if(direct==='fb')window.open('https://www.facebook.com/sharer/sharer.php?u='+appUrl+'&quote='+shareText,'_blank');
+    else if(direct==='wa')window.open('https://wa.me/?text='+shareText+'%0A%0A'+appUrl,'_blank');
+    else if(direct==='ig'){smCopyTextSilent(text,ref);window.open('https://www.instagram.com/','_blank');}
+    else if(direct==='cp')smCopyTextSilent(text,ref);
+    return;
+  }
+  document.getElementById('shareModal').classList.add('open');
+}
+
+function closeShareModal(e){
+  if(!e||e.target===document.getElementById('shareModal')||e.target.classList.contains('sm-cancel'))
+    document.getElementById('shareModal').classList.remove('open');
+}
+
+function smTrack(p){}
+
+function smCopyText(){
+  const p=S.sharePayload;
+  const txt='"'+p.text+'" — '+p.ref+'\n\nShared from Logos Light 📖\n'+window.location.href;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const el=document.getElementById('smCopied'); el.style.display='block';
+    setTimeout(()=>el.style.display='none',2500);
+  }).catch(()=>alert(txt));
+}
+
+function smCopyTextSilent(text,ref){
+  const txt='"'+text+'" — '+ref+'\n\nShared from Logos Light 📖\n'+window.location.href;
+  navigator.clipboard.writeText(txt).catch(()=>{});
+}
+
+// ══════════════════════════════════════════════════════════
+// STUDY
+// ══════════════════════════════════════════════════════════
+function loadPassage(){ S.book=document.getElementById('bookSel').value; renderPassage(); }
+
+function renderPassage(){
+  const data=PASSAGES[S.book]; if(!data)return;
+  const col=document.getElementById('readingCol');
+  col.innerHTML=`<div class="book-hdr"><div class="book-title">${data.title}</div><div class="book-sub">${data.chapter} · ${data.lang==='hebrew'?'Hebrew (OT)':'Greek (NT)'} Original</div></div>`;
+  data.verses.forEach(v=>{
+    const vKey=`${S.book}_${v.n}`;
+    const div=document.createElement('div');
+    div.className='verse-block'+(S.notes[vKey]?' noted':'');
+    let html=`<span class="vnum" onclick="verseClick('${vKey}',${v.n},event)">${v.n}</span>`;
+    v.t.split(/(\s+)/).forEach((w,i)=>{
+      if(/^\s+$/.test(w)){html+=w;return;}
+      const clean=w.toLowerCase().replace(/[.,;:!?"'']/g,'');
+      const hk=`${vKey}_${i}`;
+      const hl=S.highlights[hk]?` hl-${S.highlights[hk]}`:'';
+      const red=S.redLetters&&v.red?' red-word':'';
+      html+=`<span class="word${hl}${red}" data-w="${clean}" data-k="${hk}" data-vk="${vKey}" onclick="wordClick(this,'${clean}','${hk}','${vKey}')">${w}</span>`;
+    });
+    // share strip under each verse
+    html+=`<div class="vshare-strip">
+      <span class="vshare-lbl">SHARE</span>
+      <button class="vsbtn fb" onclick="openShareModal('${escQ(v.t)}','${escQ(data.title+' '+v.n)}','verse')"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>FB</button>
+      <button class="vsbtn wa" onclick="openShareModal('${escQ(v.t)}','${escQ(data.title+' '+v.n)}','verse')"><svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.989.518 3.86 1.426 5.482L2.05 22l4.635-1.358A10 10 0 0 0 12 22c5.522 0 10-4.477 10-10S17.522 2 12 2z"/></svg>WA</button>
+      <button class="vsbtn ig" onclick="openShareModal('${escQ(v.t)}','${escQ(data.title+' '+v.n)}','verse')"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/></svg>IG</button>
+      <button class="vsbtn cp" onclick="openShareModal('${escQ(v.t)}','${escQ(data.title+' '+v.n)}','verse','cp')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/></svg>Copy</button>
+    </div>`;
+    div.innerHTML=html;
+    div.addEventListener('contextmenu',e=>showCtxMenu(e,vKey,v.t,data.title+' '+v.n));
+    col.appendChild(div);
+  });
+}
+
+function escQ(s){return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/\n/g,' ');}
+
+function wordClick(el,word,hk,vKey){
+  S.currentVerse=vKey; S.lastWord=word;
+  if(S.hlMode){
+    if(S.hlColor==='clr'){delete S.highlights[hk];el.className=el.className.replace(/ hl-\w+/g,'');}
+    else{S.highlights[hk]=S.hlColor;el.className=el.className.replace(/ hl-\w+/g,'')+` hl-${S.hlColor}`;}
+    return;
+  }
+  if(S.noteMode){openNoteFor(vKey);return;}
+  showWordStudy(word);
+}
+
+function verseClick(vKey,vNum,e){
+  e.stopPropagation(); S.currentVerse=vKey;
+  showPTab('context');
+  document.getElementById('ctxContent').innerHTML=`<div class="slabel" style="margin-bottom:8px">Passage Background</div><div style="font-size:13.5px;line-height:1.75;color:var(--ink)">${CONTEXT[S.book]||''}</div><div class="slabel" style="margin-top:12px">Verse ${vNum} — ask below for more</div>`;
+}
+
+function showWordStudy(word){
+  showPTab('word');
+  const sec=document.getElementById('ptab-word');
+  const e=WORDS[word]||findWord(word);
+  if(!e){sec.innerHTML=`<div class="hint">No entry for "<strong>${word}</strong>". Try: word, light, life, love, grace, god, created, spirit, soul, shepherd, mercy, trust, strength, faith, truth, workmanship.</div>`;return;}
+  sec.innerHTML=`<div class="wcard"><div class="wlabel">${e.lang} · ${e.pos} · ${e.strongs}</div><div class="woriginal">${e.original}</div><div class="wtranslit">${e.translit}</div><div class="wdef">${e.def}</div><div class="wusage">${e.usage}</div></div>
+    <div class="slabel" style="margin-top:4px">Go deeper</div>
+    <button class="abtn" onclick="askAI('Explain the theological significance of ${e.translit} (${e.original}) in simple terms for a new believer, with practical scripture examples.')">Explain for new believers ↗</button>
+    <button class="abtn" onclick="askAI('What are other key Bible passages where ${e.translit} appears and how does the meaning deepen across them?')">Other occurrences ↗</button>`;
+}
+
+function findWord(w){const k=Object.keys(WORDS).find(k=>w.includes(k)||k.includes(w));return k?WORDS[k]:null;}
+
+function showPTab(t){
+  document.querySelectorAll('.ptab').forEach((el,i)=>el.classList.toggle('on',['word','context','notes'][i]===t));
+  document.querySelectorAll('.psec').forEach(el=>el.classList.remove('show'));
+  document.getElementById('ptab-'+t)?.classList.add('show');
+  if(t==='notes')renderNotes();
+}
+
+function toggleHL(){S.hlMode=!S.hlMode;S.noteMode=false;document.getElementById('hlBtn').classList.toggle('on',S.hlMode);}
+function toggleNote(){S.noteMode=!S.noteMode;S.hlMode=false;document.getElementById('noteBtn').classList.toggle('on',S.noteMode);}
+function setHLC(c){
+  S.hlColor=c;
+  document.querySelectorAll('.hl-dot').forEach(el=>el.classList.remove('on'));
+  document.getElementById('dot-'+c)?.classList.add('on');
+  S.hlMode=true;document.getElementById('hlBtn').classList.add('on');
+}
+function toggleRed(){S.redLetters=!S.redLetters;document.getElementById('redBtn').classList.toggle('on',S.redLetters);renderPassage();}
+
+function openNoteFor(vKey){
+  showPTab('notes');
+  const num=vKey.split('_')[1];
+  document.getElementById('noteInputArea').style.display='block';
+  document.getElementById('noteRefLabel').textContent='Note for verse '+num;
+  document.getElementById('noteText').value=S.notes[vKey]?.text||'';
+  S.editingNote=vKey;
+  setTimeout(()=>document.getElementById('noteText').focus(),50);
+}
+
+function saveNote(){
+  const vKey=S.editingNote;if(!vKey)return;
+  const text=document.getElementById('noteText').value.trim();
+  if(text)S.notes[vKey]={text};else delete S.notes[vKey];
+  document.getElementById('noteInputArea').style.display='none';
+  S.noteMode=false;document.getElementById('noteBtn').classList.remove('on');
+  renderPassage();renderNotes();
+}
+
+function renderNotes(){
+  const d=document.getElementById('notesDisplay');
+  const keys=Object.keys(S.notes);
+  if(!keys.length){d.innerHTML='<div class="empty-n">No notes yet. Tap a verse number and use "+ Note" to add reflections.</div>';return;}
+  d.innerHTML='<div class="slabel" style="margin-bottom:8px">My Study Notes</div>';
+  keys.forEach(k=>{
+    const num=k.split('_')[1];
+    const el=document.createElement('div');el.className='note-item';
+    el.innerHTML=`<div class="ni-hdr">Verse ${num}<span class="ni-del" onclick="delNote('${k}')">Delete</span></div><div class="ni-txt">${S.notes[k].text}</div>`;
+    d.appendChild(el);
+  });
+}
+function delNote(k){delete S.notes[k];renderPassage();renderNotes();}
+
+// ══════════════════════════════════════════════════════════
+// CONTEXT MENU
+// ══════════════════════════════════════════════════════════
+let _ctxVerseText='',_ctxVerseRef='';
+function showCtxMenu(e,vKey,vText,vRef){
+  e.preventDefault();S.currentVerse=vKey;_ctxVerseText=vText;_ctxVerseRef=vRef;
+  const m=document.getElementById('ctxMenu');m.style.display='block';
+  m.style.left=Math.min(e.clientX,window.innerWidth-190)+'px';
+  m.style.top=Math.min(e.clientY,window.innerHeight-150)+'px';
+}
+document.addEventListener('click',()=>document.getElementById('ctxMenu').style.display='none');
+function ctxHL(){if(S.currentVerse){S.hlMode=true;document.getElementById('hlBtn').classList.add('on');}}
+function ctxWord(){if(S.lastWord)showWordStudy(S.lastWord);}
+function ctxShare(){if(_ctxVerseText)openShareModal(_ctxVerseText,_ctxVerseRef,'verse');}
+function ctxNote(){if(S.currentVerse)openNoteFor(S.currentVerse);}
+
+// ══════════════════════════════════════════════════════════
+// WORSHIP VIEW
+// ══════════════════════════════════════════════════════════
+function renderWorshipView(){
+  const secs=[{key:'morning',lbl:'Morning Worship',emoji:'☀️',tod:'m'},{key:'afternoon',lbl:'Midday Worship',emoji:'🌤',tod:'a'},{key:'evening',lbl:'Evening Worship',emoji:'🌙',tod:'e'}];
+  document.getElementById('worshipContent').innerHTML=secs.map(sec=>`
+    <div class="ws-sec"><div class="ws-hdr"><span>${sec.emoji}</span><span class="ws-lbl">${sec.lbl}</span></div>
+    <div class="songs-list">${SONGS[sec.key].map(s=>`
+      <div class="scard">
+        <div class="scard-inner">
+          <div class="sthumb ${sec.tod}">${s.emoji}</div>
+          <div class="sinfo"><div class="stitle">${s.title}</div><div class="sartist">${s.artist}</div><div class="stags">${s.tags.map(t=>`<span class="stag">${t}</span>`).join('')}</div></div>
+          <a class="yt-btn" href="${s.yt}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2 .3 4.1.3 4.1s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.5 12 21.5 12 21.5s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2 .3-4.1v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.4l8.1 3.6-8.1 3.5z"/></svg>Play</a>
+        </div>
+        <div class="song-verse">"${s.verse}"</div>
+      </div>`).join('')}
+    </div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// AI
+// ══════════════════════════════════════════════════════════
+function askQ(){const q=document.getElementById('askInput').value.trim();if(!q)return;document.getElementById('askInput').value='';askAI(q);}
+
+async function askAI(question){
+  showPTab('context');
+  const data=PASSAGES[S.book];if(!data)return;
+  const verses=data.verses.map(v=>`${v.n}: ${v.t}`).join('\n');
+  const c=document.getElementById('ctxContent');
+  c.innerHTML=`<div class="aload"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="font-size:13px;color:var(--ink-light);margin-left:8px">Searching scripture…</span></div>`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:"You are a warm, scholarly Bible study guide for new and growing believers. Help them understand scripture through Hebrew and Greek word meanings, historical context, and practical life application. Be accessible but theologically grounded. Keep responses under 270 words. Write in clear, flowing prose paragraphs — no bullet points, no markdown headers.",messages:[{role:"user",content:`Passage: ${data.title} ${data.chapter}\n${verses}\n\nQuestion: ${question}`}]})});
+    const d=await res.json();
+    const text=d.content?.map(c=>c.text||'').join('')||'No response received.';
+    c.innerHTML=`<div class="slabel" style="margin-bottom:8px">Study Guide</div><div class="ai-resp">${text.replace(/\n\n/g,'</p><p style="margin-top:10px">').replace(/^/,'<p>').replace(/$/,'</p>')}</div><div style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--ink-light)">Powered by Claude · Cross-reference with your pastor and faith community</div>`;
+  }catch(err){c.innerHTML=`<div style="font-size:13px;color:var(--ink-mid);padding:10px 0">Unable to reach AI. Please check your connection.</div>`;}
+}
+</script>
+</body>
+</html>
